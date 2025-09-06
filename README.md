@@ -74,10 +74,11 @@ Choose which input for each device.
 
 ### `.shutdown(True|False, ....)`
 
-Supply a list of True|False, corresponding to the daisy-chain of devices.
+Put device in shutdown mode (low-power, output is ?).
+
+Supply a list of True|False, corresponding to the daisy-chain of devices. False means no-change.
 
 e.g. `ampchain.shutdown(True,False,True)` puts device 0 and 2 in shutdown, and has no effect on device 1.
 
-Put device in shutdown mode (low-power, output is ?). False means no-change.
 
-Device will wake on next command (e.g. `.gain() or `.channel()`).
+Device will wake on next command (e.g. `.gain() or `.channel()` ).
