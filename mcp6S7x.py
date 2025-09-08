@@ -4,6 +4,14 @@ See README.md
 See repository https://github.com/xxxxx
 """
 
+DEBUG = const(False)
+if DEBUG:
+    def debug(msg):
+        print(msg)
+else:
+    def debug(msg):
+        pass
+
 from adafruit_bus_device import spi_device
 from micropython import const
 
@@ -42,7 +50,7 @@ class MCP6S7x:
         # default to gain 1
         self.gain( *[1 for i in range(self._device_count) ] )
         self.channel(0)
-        print("  init'd")
+        debug("  init'd")
 
     def gain(self, *gains):
         if len(gains) == 0:
@@ -50,32 +58,32 @@ class MCP6S7x:
         if len(gains) > self._device_count:
             raise Exception(f"Too many gain values, we have {self._device_count} devices, but you gave {len(gains)} values")
 
-        print(f"  Set gains {gains}")
+        debug(f"  Set gains {gains}")
 
         command = []
         for g in gains:
             command.extend( self._gain(g) )
         command = bytes( command )
         hex = ' '.join( [f'0x{c:02x}' for c in command] )
-        print(f"  Full Gain command = {hex}")
+        debug(f"  Full Gain command = {hex}")
 
         with self._spi as devices:
             devices.write( command )
 
     def _gain(self, gain):
         """One 16byte command"""
-        print(f"  ## _gain <- {gain}")
+        debug(f"  ## _gain <- {gain}")
         if gain < 0:
             gain = 1
 
         # floor, not rounding
         gain_i = [i for i,x in enumerate(GAINS) if gain >= x][-1]
-        print(f"  ## gain_i for {gain} = {gain_i}")
+        debug(f"  ## gain_i for {gain} = {gain_i}")
         gain_byte = GAINS_BYTE[ gain_i ]
 
         command = [ INSTRUCTION_GAIN, gain_byte ]
         hex = ' '.join( [f'0x{c:02x}' for c in command] )
-        print(f"  Gain command = {hex}")
+        debug(f"  Gain command = {hex}")
         return command
 
     def channel(self, *channels):
@@ -90,7 +98,7 @@ class MCP6S7x:
             command.extend( self._channel(c) )
         command = bytes( command )
         hex = ' '.join( [f'0x{c:02x}' for c in command] )
-        print(f"  Full channel command = {hex}")
+        debug(f"  Full channel command = {hex}")
 
         with self._spi as devices:
             devices.write( command )
@@ -100,7 +108,7 @@ class MCP6S7x:
         """Select which inputs (channel) to use: 0|1"""
         command = [ INSTRUCTION_CHANNEL, channel ]
         hex = ' '.join( [f'0x{c:02x}' for c in command] )
-        print(f"  Channel command = {hex}")
+        debug(f"  Channel command = {hex}")
         return command
 
     def shutdown(self, *devices):
@@ -109,13 +117,13 @@ class MCP6S7x:
         if len(devices) == 0:
             devices = [True for x in self._channels]
 
-        print(f"  Shutdown {devices}")
+        debug(f"  Shutdown {devices}")
         command = []
         for x in devices:
             command.extend( self._shutdown(x) )
         command = bytes(command)
         hex = ' '.join( [f'0x{c:02x}' for c in command] )
-        print(f"  Full shutdown command = {hex}")
+        debug(f"  Full shutdown command = {hex}")
     
     def _shutdown(self, shutdown ):
         """Command, T|F for shutdown. False makes a noop"""
